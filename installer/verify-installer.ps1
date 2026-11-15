@@ -7,6 +7,9 @@ $key='HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\CompanionControl
 $retentionProfilePath=Join-Path ([Environment]::GetFolderPath('LocalApplicationData')) 'CompanionControl\Profile'
 $desktopLink=Join-Path ([Environment]::GetFolderPath('DesktopDirectory')) '桌面伙伴.lnk'
 $menuDir=Join-Path ([Environment]::GetFolderPath('Programs')) '桌面伙伴'
+# Hosted Windows service accounts have not necessarily performed a first desktop logon.
+$desktopDir=Split-Path -Parent $desktopLink
+if(-not (Test-Path -LiteralPath $desktopDir)){New-Item -ItemType Directory -Path $desktopDir -Force | Out-Null}
 # This verifier is intentionally restricted to a fresh Windows user / build machine.
 foreach($existing in @($key,$retentionProfilePath,$desktopLink,$menuDir,$testHome)){
  if(Test-Path -LiteralPath $existing){throw 'Installation verification requires a clean user profile and a new work directory.'}
@@ -20,6 +23,13 @@ if($installed.ExitCode -ne 0){throw ('Installer exit code '+$installed.ExitCode)
 if(-not (Test-Path -LiteralPath (Join-Path $programDir 'CompanionControl.exe'))){throw 'Launcher was not installed'}
 if(-not (Test-Path -LiteralPath $key)){throw 'Installed Apps entry missing'}
 $shell=New-Object -ComObject WScript.Shell
+if(-not (Test-Path -LiteralPath $desktopLink)){
+ Write-Host ('Expected desktop: '+$desktopDir)
+ Get-ChildItem -LiteralPath $desktopDir -Force | Select-Object Name,FullName | Format-List | Out-String | Write-Host
+ $programsRoot=[Environment]::GetFolderPath('Programs')
+ Get-ChildItem -LiteralPath $programsRoot -Force | Select-Object Name | Format-Table | Out-String | Write-Host
+ throw 'Installer did not create the expected desktop shortcut'
+}
 $target=$shell.CreateShortcut($desktopLink).TargetPath
 if([IO.Path]::GetFullPath($target) -ne (Join-Path $programDir 'CompanionControl.exe')){throw 'Desktop shortcut target is incorrect'}
 $env:COMPANION_INSTALL_VERIFY_ROOT=$programDir
