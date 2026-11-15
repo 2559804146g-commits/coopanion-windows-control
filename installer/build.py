@@ -34,8 +34,7 @@ def build(work, output, prepare_only=False):
     with zipfile.ZipFile(upstream) as z:
         for n in z.namelist():
             if not safe_member(n): raise RuntimeError('Archive path escaped the payload')
-            # Explicitly excluded by the artwork notice. Coo remains built in; users can import licensed packs.
-            if n.startswith('resources/app/node_modules/cortico-world-desktop-pet/web/whale/'): continue
+            # Retain upstream built-in figures and their original attribution notices.
             z.extract(n, app)
     control = payload / 'Control'; control.mkdir()
     names = json.loads((ROOT / 'installer/source-files.json').read_text(encoding='utf-8'))
@@ -86,7 +85,7 @@ if(process.argv.includes('--desktop-control-host')){require(require('node:path')
     replace(companion,'declares: [CONSOLE.id, DESKTOP_PET.id, NOTICE.id]', 'declares: [CONSOLE.id, DESKTOP_PET.id, NOTICE.id, WINDOWS_CONTROL.id]')
     replace(companion,'const bundled = [CONSOLE, DESKTOP_PET, NOTICE]', 'const bundled = [CONSOLE, DESKTOP_PET, NOTICE, WINDOWS_CONTROL]')
     replace(companion,"{ id: DESKTOP_PET.id, packageName: 'cortico-world-desktop-pet' },", "{ id: DESKTOP_PET.id, packageName: 'cortico-world-desktop-pet' },\n    { id: WINDOWS_CONTROL.id, packageName: 'cortico-world-windows-desktop' },")
-    replace(core/'seed.ts',"worlds: { 'desktop-pet': { cua: { permission: CUA_ASK } } },", "worlds: { 'desktop-pet': { cua: { permission: CUA_ASK }, asr: { engine: 'whisper', enabled: true, mic: { mode: 'hold', hotkey: 'F8' } } }, 'windows-desktop': { enabled: true } },")
+    replace(core/'seed.ts',"worlds: { 'desktop-pet': { cua: { permission: CUA_ASK } } },", "worlds: { 'desktop-pet': { skin: { figure: 'whale', scheme: 'deepseek' }, cua: { permission: CUA_ASK }, asr: { engine: 'whisper', enabled: true, mic: { mode: 'hold', hotkey: 'F8' } } }, 'windows-desktop': { enabled: true } },")
     replace(pet/'src/definition.ts','modelsDir: () => modelsDirFor(modelsRoot()),','modelsDir: () => process.env.COMPANION_CONTROL_ASR || modelsDirFor(modelsRoot()),')
     proxy=upstream_root/'node_modules/cortico-world-windows-desktop'; proxy.mkdir()
     meta=json.loads((control/'bridge/package.json').read_text(encoding='utf-8'));meta['main']='index.mjs';meta['cortico']['webUiClient']='webui.js'
@@ -101,8 +100,8 @@ if(process.argv.includes('--desktop-control-host')){require(require('node:path')
     csc=Path(os.environ['WINDIR'])/'Microsoft.NET/Framework64/v4.0.30319/csc.exe'
     subprocess.run([str(csc),'/nologo','/target:winexe','/platform:x64','/optimize+','/reference:System.Windows.Forms.dll','/win32icon:'+str(upstream_root/'app/icons/icon.ico'),'/out:'+str(payload/'CompanionControl.exe'),str(ROOT/'installer/Launcher.cs')],check=True)
     shutil.copy2(ROOT/'LICENSE',payload/'LICENSE')
-    (payload/'使用说明.txt').write_text('桌面伙伴 · Windows 控制 社区整合版 0.14.1\n\n双击桌面快捷方式即可启动。首次在原管理窗口填写自己的聊天模型账号。\n已内置应用控制、中文离线朗读和 Whisper 语音识别环境；按住 F8 说话，松开发送。\n应用授权在“桌面生态扩展 → 应用与活动”，安装不会默认授权电脑里的应用。\n聊天、声音、形象与设置共用原管理窗口，关闭窗口后桌宠仍在托盘运行。\n\n账号密钥、QQ登录、个人声音、歌曲作品均未预置。原鲸鱼贴图没有通用再分发许可，此包默认提供 Coo，可导入你有权使用的形象。\n翻唱属于可选制作功能，授权声音与其制作模型需单独导入；本控制版不附带你的个人翻唱模型。\n聊天和设置位于 %LOCALAPPDATA%\\CompanionControl\\Profile，卸载默认保留。\n源码与全部构建配方：https://github.com/2559804146g-commits/coopanion-windows-control\n上游源码：https://github.com/Pal-AI-Lab/Coopanion/tree/v0.2.19\n第三方许可见程序各组件 LICENSE/THIRD_PARTY_NOTICES 与 Control/THIRD_PARTY.md。\n',encoding='utf-8')
-    manifest={'version':'0.14.1','inputs':LOCK,'files':{}}
+    (payload/'使用说明.txt').write_text('桌面伙伴 · Windows 控制 社区整合版 0.14.2\n\n双击桌面快捷方式即可启动。首次在原管理窗口填写自己的聊天模型账号。\n已内置应用控制、中文离线朗读和 Whisper 语音识别环境；按住 F8 说话，松开发送。\n应用授权在“桌面生态扩展 → 应用与活动”，安装不会默认授权电脑里的应用。\n聊天、声音、形象与设置共用原管理窗口，关闭窗口后桌宠仍在托盘运行。\n\n账号密钥、QQ登录、个人声音、歌曲作品均未预置。保留原版内置鲸鱼娘及全部配色，首次使用默认 DeepSeek 配色；装扮页仍可切换 Coo 和其他内置装扮。原素材来源与权利声明完整保留。\n翻唱属于可选制作功能，授权声音与其制作模型需单独导入；本控制版不附带你的个人翻唱模型。\n聊天和设置位于 %LOCALAPPDATA%\\CompanionControl\\Profile，卸载默认保留。\n源码与全部构建配方：https://github.com/2559804146g-commits/coopanion-windows-control\n上游源码：https://github.com/Pal-AI-Lab/Coopanion/tree/v0.2.19\n第三方许可见程序各组件 LICENSE/THIRD_PARTY_NOTICES 与 Control/THIRD_PARTY.md。\n',encoding='utf-8')
+    manifest={'version':'0.14.2','inputs':LOCK,'files':{}}
     for file in payload.rglob('*'):
         if file.is_file(): manifest['files'][file.relative_to(payload).as_posix()]={'sha256':digest(file),'bytes':file.stat().st_size}
     (control/'bundle-manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2),encoding='utf-8')
@@ -115,11 +114,11 @@ if(process.argv.includes('--desktop-control-host')){require(require('node:path')
         if file.is_file(): lines.append('Delete "$INSTDIR\\'+str(file.relative_to(payload)).replace('/','\\').replace('$','$$')+'"')
     for d in sorted((d for d in payload.rglob('*') if d.is_dir()),key=lambda p:len(p.parts),reverse=True):lines.append('RMDir "$INSTDIR\\'+str(d.relative_to(payload)).replace('/','\\').replace('$','$$')+'"')
     uninstall.write_text('\n'.join(lines)+'\n',encoding='utf-8-sig')
-    target=output/'CompanionControl-0.14.1-win-x64-Setup.exe'
+    target=output/'CompanionControl-0.14.2-win-x64-Setup.exe'
     script=work/'setup.nsi';shutil.copy2(ROOT/'installer/setup.nsi',script)
     subprocess.run([str(compiler),'/V2','/INPUTCHARSET','UTF8','/DPAYLOAD='+str(payload),'/DOUTPUT='+str(target),'/DUNINSTALL_FILES='+str(uninstall),str(script)],check=True)
     (output/(target.name+'.sha256')).write_text(digest(target)+'  '+target.name+'\n',encoding='ascii')
-    shutil.copy2(control/'bundle-manifest.json',output/'bundle-manifest-0.14.1.json')
+    shutil.copy2(control/'bundle-manifest.json',output/'bundle-manifest-0.14.2.json')
     print(json.dumps({'installer':str(target),'bytes':target.stat().st_size,'sha256':digest(target)},ensure_ascii=False),flush=True)
     return payload
 if __name__=='__main__':

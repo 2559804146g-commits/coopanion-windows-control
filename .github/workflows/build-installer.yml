@@ -36,7 +36,7 @@ jobs:
       - name: Verify complete application with a new profile
         run: python installer/verify-startup.py '${{ runner.temp }}\companion-build\payload' '${{ runner.temp }}\companion-startup\profile'
       - name: Verify installation, desktop shortcut, and safe uninstall
-        run: '& installer/verify-installer.ps1 -Installer "${{ runner.temp }}\companion-release\CompanionControl-0.14.1-win-x64-Setup.exe" -Work "${{ runner.temp }}\companion-install"'
+        run: '& installer/verify-installer.ps1 -Installer "${{ runner.temp }}\companion-release\CompanionControl-0.14.2-win-x64-Setup.exe" -Work "${{ runner.temp }}\companion-install"'
       - uses: actions/upload-artifact@v4
         with:
           name: installer-verification

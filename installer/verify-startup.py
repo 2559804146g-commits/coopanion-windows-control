@@ -40,6 +40,19 @@ try:
     state=ready()
     config=profile/'core/home/companion/config.json'
     c=json.loads(config.read_text(encoding='utf-8'));assert c['worlds']['windows-desktop']['enabled']
+    assert c['worlds']['desktop-pet']['skin']['figure']=='whale' and c['worlds']['desktop-pet']['skin']['scheme']=='deepseek'
+    deadline=time.monotonic()+30
+    while time.monotonic()<deadline:
+        pet=call('http://127.0.0.1:17788/api/webui/providers/world%3Adesktop-pet/panels/pet/state',{'args':[]})
+        if pet.get('connected') and pet.get('inWindow'):break
+        time.sleep(.5)
+    else:raise RuntimeError('Native pet window did not connect')
+    assert pet['skin']['figure']=='whale' and pet['skin']['scheme']=='deepseek'
+    assert call('http://127.0.0.1:7797/web/whale/figure.json')['id']=='whale'
+    whale=root/'Coopanion/resources/app/node_modules/cortico-world-desktop-pet/web/whale'
+    texture=next(whale.rglob('*.png'))
+    url='http://127.0.0.1:7797/web/whale/'+__import__('urllib.parse',fromlist=['quote']).quote(texture.relative_to(whale).as_posix())
+    assert urllib.request.urlopen(url,timeout=5).read()==texture.read_bytes()
     assert (profile/'desktop/desktop.json').exists()
     assert not (root/'Coopanion/data').exists()
     assert not (root/'Control/data').exists()
@@ -52,7 +65,7 @@ try:
     ready()
     assert marker.read_text(encoding='utf-8')=='same-profile'
     assert not (root/'Coopanion/data').exists() and not (root/'Control/data').exists()
-    report={'version':json.loads((root/'Control/bundle-manifest.json').read_text(encoding='utf-8'))['version'],'coreStarted':True,'controlStarted':True,'originalSettingsPanelAvailable':True,'factoryAppPermissionsEmpty':True,'profileOutsideProgram':True,'rawExecutableReusesProfile':True,'desktopShortcutLaunched':bool(a.shortcut)}
+    report={'version':json.loads((root/'Control/bundle-manifest.json').read_text(encoding='utf-8'))['version'],'coreStarted':True,'controlStarted':True,'originalSettingsPanelAvailable':True,'factoryAppPermissionsEmpty':True,'profileOutsideProgram':True,'rawExecutableReusesProfile':True,'desktopShortcutLaunched':bool(a.shortcut),'defaultFigure':'whale','defaultScheme':'deepseek','nativePetConnected':True,'whaleTextureServed':True}
     (profile.parent/'startup-verification.json').write_text(json.dumps(report,indent=2),encoding='utf-8');print(json.dumps(report))
 finally:
     stop()

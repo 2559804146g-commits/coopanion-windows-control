@@ -36,4 +36,4 @@
 
 ## 0.14 整合安装包
 
-安装包从固定哈希的官方 Coopanion 0.2.19 便携发行包构建并保留其组件许可；不含 `web/whale` 的受限贴图，默认提供 Coo。Windows/Electron/MinGit/原生语音库等沿用各自许可证，具体来源在 `installer/inputs.lock.json` 和发布组件清单中。MeloTTS 模型为 MIT，Kokoro int8 模型为 Apache-2.0，Whisper small int8 模型按 Whisper 的 MIT 许可，模型目录内许可证随包保存。模型来自 sherpa-onnx 官方模型发行或其固定校验的模型来源。原应用修改点及全部构建源码公开；发布资产另附对应原应用源码目录。不把代码许可扩展为人物美术、商标或声音人格的许可。
+安装包从固定哈希的官方 Coopanion 0.2.19 便携发行包构建并保留其组件许可；从 0.14.2 起保留原发行包内置的 `web/whale` 鲸鱼贴图、配色与装扮，首次默认 DeepSeek 配色；同时保留 Coo。鲸鱼素材的作者、原设、二创参考与标志权利说明保留在原 `cortico-world-desktop-pet/THIRD_PARTY_NOTICES.md` 及形象清单中；这些素材不改为代码的 AGPL 授权。Windows/Electron/MinGit/原生语音库等沿用各自许可证，具体来源在 `installer/inputs.lock.json` 和发布组件清单中。MeloTTS 模型为 MIT，Kokoro int8 模型为 Apache-2.0，Whisper small int8 模型按 Whisper 的 MIT 许可，模型目录内许可证随包保存。模型来自 sherpa-onnx 官方模型发行或其固定校验的模型来源。原应用修改点及全部构建源码公开；发布资产另附对应原应用源码目录。不把代码许可扩展为人物美术、商标或声音人格的许可。

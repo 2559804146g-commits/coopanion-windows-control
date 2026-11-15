@@ -1,6 +1,6 @@
 {
   "name": "cortico-world-windows-desktop",
-  "version": "0.14.1",
+  "version": "0.14.2",
   "type": "module",
   "main": "index.mjs",
   "description": "接入真实 Windows 窗口、应用、文件及持续计划",

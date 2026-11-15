@@ -3,7 +3,12 @@ const root=path.resolve(process.argv[2]||''),scratch=path.resolve(process.argv[3
 assert.ok(fs.existsSync(path.join(root,'Control/bundle-manifest.json')),'bundle manifest required');assert.notEqual(root,scratch);fs.mkdirSync(scratch,{recursive:true});
 const manifest=JSON.parse(fs.readFileSync(path.join(root,'Control/bundle-manifest.json'))),report={version:manifest.version,files:0,hashes:true,offlineVoice:[],offlineRecognition:null};
 for(const [name,v]of Object.entries(manifest.files)){assert.ok(!name.startsWith('data/')&&!name.includes('/home/companion/'),'private deployment found');const b=fs.readFileSync(path.join(root,name));assert.equal(crypto.createHash('sha256').update(b).digest('hex'),v.sha256,name);report.files++;}
-assert.ok(!fs.existsSync(path.join(root,'Coopanion/resources/app/node_modules/cortico-world-desktop-pet/web/whale')),'restricted artwork was bundled');
+const petRoot=path.join(root,'Coopanion/resources/app/node_modules/cortico-world-desktop-pet'),whale=path.join(petRoot,'web/whale');
+assert.equal(JSON.parse(fs.readFileSync(path.join(whale,'figure.json'))).id,'whale');
+assert.ok(fs.readFileSync(path.join(petRoot,'THIRD_PARTY_NOTICES.md'),'utf8').includes('上善无形'),'original artwork attribution missing');
+assert.ok(fs.readFileSync(path.join(whale,'figure.js'),'utf8').includes('createIntegratedWhaleBody'),'whale interaction integration missing');
+const assets=Object.keys(manifest.files).filter(n=>n.includes('/web/whale/'));assert.ok(assets.some(n=>n.endsWith('.png'))&&assets.length>20,'built-in whale assets incomplete');
+report.builtInWhale={included:true,files:assets.length,originalAttribution:true,interactionIntegrated:true};
 process.env.PATH=path.join(root,'Runtime')+path.delimiter+path.join(process.env.SystemRoot||'C:/Windows','System32');process.env.PET_TTS_MODEL='int8';process.env.DESKTOP_CONTROL_DATA=path.join(scratch,'desktop');
 const node=path.join(root,'Runtime/node.exe');
 async function voice(voiceId){

@@ -29,7 +29,7 @@ jobs:
           with urllib.request.urlopen('https://github.com/2559804146g-commits/coopanion-windows-control/releases/download/v'+version+'/'+name+'.sha256') as response:expected=response.read().decode('ascii').split()[0]
           with target.open('rb') as file:assert hashlib.file_digest(file,'sha256').hexdigest()==expected
       - name: Install, verify shortcut and files, then uninstall while preserving data
-        run: ./installer/verify-installer.ps1 -Installer '${{ runner.temp }}\CompanionControl-0.14.1-win-x64-Setup.exe' -Work '${{ runner.temp }}\installer-validation'
+        run: ./installer/verify-installer.ps1 -Installer '${{ runner.temp }}\CompanionControl-0.14.2-win-x64-Setup.exe' -Work '${{ runner.temp }}\installer-validation'
       - uses: actions/upload-artifact@v4
         with:
           name: installation-verification
