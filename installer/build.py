@@ -103,7 +103,8 @@ def build(work, output, prepare_only=False):
     for d in sorted((d for d in payload.rglob('*') if d.is_dir()),key=lambda p:len(p.parts),reverse=True):lines.append('RMDir "$INSTDIR\\'+str(d.relative_to(payload)).replace('/','\\').replace('$','$$')+'"')
     uninstall.write_text('\n'.join(lines)+'\n',encoding='utf-8-sig')
     target=output/'CompanionControl-0.14.0-win-x64-Setup.exe'
-    subprocess.run([str(compiler),'/V2','/INPUTCHARSET','UTF8','/DPAYLOAD='+str(payload),'/DOUTPUT='+str(target),'/DUNINSTALL_FILES='+str(uninstall),str(ROOT/'installer/setup.nsi')],check=True)
+    script=work/'setup.nsi';shutil.copy2(ROOT/'installer/setup.nsi',script)
+    subprocess.run([str(compiler),'/V2','/INPUTCHARSET','UTF8','/DPAYLOAD='+str(payload),'/DOUTPUT='+str(target),'/DUNINSTALL_FILES='+str(uninstall),str(script)],check=True)
     (output/(target.name+'.sha256')).write_text(digest(target)+'  '+target.name+'\n',encoding='ascii')
     shutil.copy2(control/'bundle-manifest.json',output/'bundle-manifest-0.14.0.json')
     print(json.dumps({'installer':str(target),'bytes':target.stat().st_size,'sha256':digest(target)},ensure_ascii=False),flush=True)

@@ -1,6 +1,7 @@
 [
   ".github/workflows/build-installer.yml",
   ".github/workflows/check.yml",
+  ".github/workflows/verify-installer.yml",
   ".gitignore",
   "LICENSE",
   "LICENSES/initial-repository-MPL-2.0.txt",
@@ -58,6 +59,7 @@
   "installer/setup.nsi",
   "installer/source-files.json",
   "installer/verify-bundle.mjs",
+  "installer/verify-installer.ps1",
   "installer/verify-startup.py",
   "integration/figure-client.js",
   "integration/pet-client.js",

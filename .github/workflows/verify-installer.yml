@@ -1,0 +1,34 @@
+name: Verify published Windows installation
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+jobs:
+  install-uninstall:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[installer-validation]')
+    runs-on: windows-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Download exact published installer and verify SHA256
+        shell: python
+        env:
+          BUILD_TEMP: ${{ runner.temp }}
+        run: |
+          from pathlib import Path
+          import hashlib,os,shutil,urllib.request
+          name='CompanionControl-0.14.0-win-x64-Setup.exe'
+          target=Path(os.environ['BUILD_TEMP'])/name
+          with urllib.request.urlopen('https://github.com/2559804146g-commits/coopanion-windows-control/releases/download/v0.14.0/'+name,timeout=180) as source,target.open('wb') as out:shutil.copyfileobj(source,out)
+          with target.open('rb') as file:assert hashlib.file_digest(file,'sha256').hexdigest()=='9b1d3a70ac020a064c9d629197d08698ccc984407e330931b10278b2bac2f0c2'
+      - name: Install, verify shortcut and files, then uninstall while preserving data
+        run: ./installer/verify-installer.ps1 -Installer '${{ runner.temp }}\CompanionControl-0.14.0-win-x64-Setup.exe' -Work '${{ runner.temp }}\installer-validation'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installation-verification
+          path: ${{ runner.temp }}/installer-validation/installation-verification.json
