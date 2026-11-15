@@ -30,8 +30,12 @@ if(-not (Test-Path -LiteralPath $desktopLink)){
  Get-ChildItem -LiteralPath $programsRoot -Force | Select-Object Name | Format-Table | Out-String | Write-Host
  throw 'Installer did not create the expected desktop shortcut'
 }
-$target=$shell.CreateShortcut($desktopLink).TargetPath
-if([IO.Path]::GetFullPath($target) -ne (Join-Path $programDir 'CompanionControl.exe')){throw 'Desktop shortcut target is incorrect'}
+$shortcut=$shell.CreateShortcut($desktopLink)
+$target=$shortcut.TargetPath
+Write-Host ('Shortcut metadata: '+(@{bytes=(Get-Item -LiteralPath $desktopLink).Length;target=$target;fullName=$shortcut.FullName} | ConvertTo-Json -Compress))
+# Launch the actual .lnk through Windows Shell: this is the user-visible contract.
+python "$PSScriptRoot/verify-startup.py" $programDir $retentionProfilePath --shortcut $desktopLink --default-profile
+if($LASTEXITCODE -ne 0){throw 'Installed desktop shortcut or profile persistence failed'}
 $env:COMPANION_INSTALL_VERIFY_ROOT=$programDir
 $verifyCode=@'
 import fs from 'node:fs';import path from 'node:path';import crypto from 'node:crypto';
@@ -59,8 +63,5 @@ Remove-Item -LiteralPath $extra
 if(@(Get-ChildItem -LiteralPath $programDir -Force).Count -ne 0){throw 'Unexpected files remain after uninstall; refusing recursive cleanup'}
 Remove-Item -LiteralPath $programDir
 Remove-Item -LiteralPath $sentinel
-if(@(Get-ChildItem -LiteralPath $retentionProfilePath -Force).Count -ne 0){throw 'Unexpected profile data appeared; preserving it'}
-Remove-Item -LiteralPath $retentionProfilePath
-$retentionParent=Split-Path -Parent $retentionProfilePath
-if(@(Get-ChildItem -LiteralPath $retentionParent -Force).Count -eq 0){Remove-Item -LiteralPath $retentionParent}
+# Keep generated chats/settings in the disposable CI profile, exactly as uninstall promises.
 $report | ConvertTo-Json

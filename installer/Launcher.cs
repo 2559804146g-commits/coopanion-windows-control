@@ -8,7 +8,7 @@ using System.Threading;
 using System.Windows.Forms;
 [assembly: AssemblyTitle("桌面伙伴 · Windows 控制")]
 [assembly: AssemblyProduct("Coopanion Windows Control Community Edition")]
-[assembly: AssemblyVersion("0.14.0.0")]
+[assembly: AssemblyVersion("0.14.1.0")]
 class Launcher {
  static readonly string Root=Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
  static readonly string Exe=Path.Combine(Root,"Coopanion","Coopanion.exe");

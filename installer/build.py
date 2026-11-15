@@ -67,7 +67,20 @@ def build(work, output, prepare_only=False):
     # The complete pinned public runtime is retained, including all original component notices.
     upstream_root=app/'resources/app'; core=upstream_root/'core'; pet=upstream_root/'node_modules/cortico-world-desktop-pet'
     entry=upstream_root/'app/main.cjs'
-    entry.write_text("// Community bundle host; upstream notices and implementation follow.\nif(process.argv.includes('--desktop-control-host')){require(require('node:path').resolve(__dirname,'../../../../Control/main.cjs'));return;}\n"+entry.read_text(encoding='utf-8'),encoding='utf-8',newline='')
+    bootstrap="""// Community bundle host; every entry, including login and pinned taskbar launch, shares one profile.
+{
+ const p=require('node:path'),base=p.resolve(__dirname,'../../../..');
+ const local=process.env.LOCALAPPDATA||p.join(require('node:os').homedir(),'AppData/Local');
+ const profile=process.env.COMPANION_CONTROL_PROFILE||p.join(local,'CompanionControl/Profile');
+ process.env.CORTICO_COMPANION_DATA||=p.join(profile,'core');
+ process.env.DESKTOP_CONTROL_DATA||=p.join(profile,'desktop');
+ process.env.COMPANION_CONTROL_ASR||=p.join(base,'Models/asr');
+ process.env.PET_TTS_MODEL||='int8';
+ process.env.PATH=p.join(base,'Runtime')+p.delimiter+(process.env.PATH||'');
+}
+if(process.argv.includes('--desktop-control-host')){require(require('node:path').resolve(__dirname,'../../../../Control/main.cjs'));return;}
+"""
+    entry.write_text(bootstrap+entry.read_text(encoding='utf-8'),encoding='utf-8',newline='')
     companion=core/'companion.ts'
     companion.write_text("import WINDOWS_CONTROL from '../../../../Control/bridge/index.mjs';\n"+companion.read_text(encoding='utf-8'),encoding='utf-8',newline='')
     replace(companion,'declares: [CONSOLE.id, DESKTOP_PET.id, NOTICE.id]', 'declares: [CONSOLE.id, DESKTOP_PET.id, NOTICE.id, WINDOWS_CONTROL.id]')
@@ -88,8 +101,8 @@ def build(work, output, prepare_only=False):
     csc=Path(os.environ['WINDIR'])/'Microsoft.NET/Framework64/v4.0.30319/csc.exe'
     subprocess.run([str(csc),'/nologo','/target:winexe','/platform:x64','/optimize+','/reference:System.Windows.Forms.dll','/win32icon:'+str(upstream_root/'app/icons/icon.ico'),'/out:'+str(payload/'CompanionControl.exe'),str(ROOT/'installer/Launcher.cs')],check=True)
     shutil.copy2(ROOT/'LICENSE',payload/'LICENSE')
-    (payload/'使用说明.txt').write_text('桌面伙伴 · Windows 控制 社区整合版 0.14.0\n\n双击桌面快捷方式即可启动。首次在原管理窗口填写自己的聊天模型账号。\n已内置应用控制、中文离线朗读和 Whisper 语音识别环境；按住 F8 说话，松开发送。\n应用授权在“桌面生态扩展 → 应用与活动”，安装不会默认授权电脑里的应用。\n聊天、声音、形象与设置共用原管理窗口，关闭窗口后桌宠仍在托盘运行。\n\n账号密钥、QQ登录、个人声音、歌曲作品均未预置。原鲸鱼贴图没有通用再分发许可，此包默认提供 Coo，可导入你有权使用的形象。\n翻唱属于可选制作功能，授权声音与其制作模型需单独导入；本控制版不附带你的个人翻唱模型。\n聊天和设置位于 %LOCALAPPDATA%\\CompanionControl\\Profile，卸载默认保留。\n源码与全部构建配方：https://github.com/2559804146g-commits/coopanion-windows-control\n上游源码：https://github.com/Pal-AI-Lab/Coopanion/tree/v0.2.19\n第三方许可见程序各组件 LICENSE/THIRD_PARTY_NOTICES 与 Control/THIRD_PARTY.md。\n',encoding='utf-8')
-    manifest={'version':'0.14.0','inputs':LOCK,'files':{}}
+    (payload/'使用说明.txt').write_text('桌面伙伴 · Windows 控制 社区整合版 0.14.1\n\n双击桌面快捷方式即可启动。首次在原管理窗口填写自己的聊天模型账号。\n已内置应用控制、中文离线朗读和 Whisper 语音识别环境；按住 F8 说话，松开发送。\n应用授权在“桌面生态扩展 → 应用与活动”，安装不会默认授权电脑里的应用。\n聊天、声音、形象与设置共用原管理窗口，关闭窗口后桌宠仍在托盘运行。\n\n账号密钥、QQ登录、个人声音、歌曲作品均未预置。原鲸鱼贴图没有通用再分发许可，此包默认提供 Coo，可导入你有权使用的形象。\n翻唱属于可选制作功能，授权声音与其制作模型需单独导入；本控制版不附带你的个人翻唱模型。\n聊天和设置位于 %LOCALAPPDATA%\\CompanionControl\\Profile，卸载默认保留。\n源码与全部构建配方：https://github.com/2559804146g-commits/coopanion-windows-control\n上游源码：https://github.com/Pal-AI-Lab/Coopanion/tree/v0.2.19\n第三方许可见程序各组件 LICENSE/THIRD_PARTY_NOTICES 与 Control/THIRD_PARTY.md。\n',encoding='utf-8')
+    manifest={'version':'0.14.1','inputs':LOCK,'files':{}}
     for file in payload.rglob('*'):
         if file.is_file(): manifest['files'][file.relative_to(payload).as_posix()]={'sha256':digest(file),'bytes':file.stat().st_size}
     (control/'bundle-manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2),encoding='utf-8')
@@ -102,11 +115,11 @@ def build(work, output, prepare_only=False):
         if file.is_file(): lines.append('Delete "$INSTDIR\\'+str(file.relative_to(payload)).replace('/','\\').replace('$','$$')+'"')
     for d in sorted((d for d in payload.rglob('*') if d.is_dir()),key=lambda p:len(p.parts),reverse=True):lines.append('RMDir "$INSTDIR\\'+str(d.relative_to(payload)).replace('/','\\').replace('$','$$')+'"')
     uninstall.write_text('\n'.join(lines)+'\n',encoding='utf-8-sig')
-    target=output/'CompanionControl-0.14.0-win-x64-Setup.exe'
+    target=output/'CompanionControl-0.14.1-win-x64-Setup.exe'
     script=work/'setup.nsi';shutil.copy2(ROOT/'installer/setup.nsi',script)
     subprocess.run([str(compiler),'/V2','/INPUTCHARSET','UTF8','/DPAYLOAD='+str(payload),'/DOUTPUT='+str(target),'/DUNINSTALL_FILES='+str(uninstall),str(script)],check=True)
     (output/(target.name+'.sha256')).write_text(digest(target)+'  '+target.name+'\n',encoding='ascii')
-    shutil.copy2(control/'bundle-manifest.json',output/'bundle-manifest-0.14.0.json')
+    shutil.copy2(control/'bundle-manifest.json',output/'bundle-manifest-0.14.1.json')
     print(json.dumps({'installer':str(target),'bytes':target.stat().st_size,'sha256':digest(target)},ensure_ascii=False),flush=True)
     return payload
 if __name__=='__main__':

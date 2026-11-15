@@ -6,7 +6,7 @@ import {VoiceOutput} from '../voice-output.mjs';
 import {synthesizeCloud} from '../cloud-voice.mjs';
 import {loadBreezeVoices} from '../breeze-voice.mjs';
 const config={type:'breezeblue',api_key:'brz_private_fixture',model:'breeze-tts-2',speaker:'',instructions:'自然、亲切地说话',guidance_scale:4};
-function fixture(){const dir=fs.mkdtempSync(path.join(os.tmpdir(),'pet-breeze-'));return {dir,models:new VoiceModels(dir),close(){assert.equal(path.dirname(dir),os.tmpdir());assert.ok(path.basename(dir).startsWith('pet-breeze-'));fs.rmSync(dir,{recursive:true,force:true});}};}
+function fixture(){const dir=fs.mkdtempSync(path.join(os.tmpdir(),'pet-breeze-'));return {dir,models:new VoiceModels(dir),close(){assert.equal(path.dirname(dir),os.tmpdir());assert.ok(path.basename(dir).startsWith('pet-breeze-'));fs.rmSync(dir,{recursive:true,force:true,maxRetries:5,retryDelay:100});}};}
 function add(models){return models.invoke('add',{formData:{id:'breeze',modelName:'BreezeBlue',isEnabled:1,configJson:config}});}
 const page=(voices,more=false,token=null)=>new Response(JSON.stringify({voices,has_more:more,next_page_token:token}),{headers:{'content-type':'application/json'}});
 const row=(id,name)=>({voice_id:id,name,language_code:'zh'});

@@ -22,12 +22,14 @@ jobs:
         run: |
           from pathlib import Path
           import hashlib,os,shutil,urllib.request
-          name='CompanionControl-0.14.0-win-x64-Setup.exe'
+          version=__import__('json').loads(Path('package.json').read_text(encoding='utf-8'))['version']
+          name='CompanionControl-'+version+'-win-x64-Setup.exe'
           target=Path(os.environ['BUILD_TEMP'])/name
-          with urllib.request.urlopen('https://github.com/2559804146g-commits/coopanion-windows-control/releases/download/v0.14.0/'+name,timeout=180) as source,target.open('wb') as out:shutil.copyfileobj(source,out)
-          with target.open('rb') as file:assert hashlib.file_digest(file,'sha256').hexdigest()=='9b1d3a70ac020a064c9d629197d08698ccc984407e330931b10278b2bac2f0c2'
+          with urllib.request.urlopen('https://github.com/2559804146g-commits/coopanion-windows-control/releases/download/v'+version+'/'+name,timeout=180) as source,target.open('wb') as out:shutil.copyfileobj(source,out)
+          with urllib.request.urlopen('https://github.com/2559804146g-commits/coopanion-windows-control/releases/download/v'+version+'/'+name+'.sha256') as response:expected=response.read().decode('ascii').split()[0]
+          with target.open('rb') as file:assert hashlib.file_digest(file,'sha256').hexdigest()==expected
       - name: Install, verify shortcut and files, then uninstall while preserving data
-        run: ./installer/verify-installer.ps1 -Installer '${{ runner.temp }}\CompanionControl-0.14.0-win-x64-Setup.exe' -Work '${{ runner.temp }}\installer-validation'
+        run: ./installer/verify-installer.ps1 -Installer '${{ runner.temp }}\CompanionControl-0.14.1-win-x64-Setup.exe' -Work '${{ runner.temp }}\installer-validation'
       - uses: actions/upload-artifact@v4
         with:
           name: installation-verification

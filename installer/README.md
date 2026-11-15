@@ -15,6 +15,6 @@ npm run build:voice
 python installer/build.py --work D:/CompanionControlBuild --output D:/CompanionControlRelease
 ```
 
-`--work` 必须没有旧 payload；输入下载缓存可预先放在其 downloads 目录。产物为单文件 NSIS 安装程序、SHA256 和完整组件清单。GitHub 的发布工作流会在检查实际离线合成和识别成功后，附上对应应用源码再发布预发行版。发布到相同版本时不会自动覆盖已有公开资产。
+`--work` 必须没有旧 payload；输入下载缓存可预先放在其 downloads 目录。产物为单文件 NSIS 安装程序、SHA256 和完整组件清单。GitHub 的发布工作流会在检查实际离线合成、识别、全新安装、桌面快捷方式、直接启动时资料复用与卸载保留成功后，附上对应应用源码再发布预发行版。发布到相同版本时不会自动覆盖已有公开资产。
 
 当前尚无代码签名证书；系统可能显示未知发布者。代码签名需要维护者自己的证书，构建不修改 Windows 的保护设置。翻唱是另一个可选的制作模块，控制版不预置其 Python 推理环境或受限歌声音色；它不影响已内置的对话语音和应用控制。
