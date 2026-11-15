@@ -1,0 +1,49 @@
+name: Build offline Windows installer
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+jobs:
+  installer:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[installer-release]')
+    runs-on: windows-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+    env:
+      ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
+      PYTHONUTF8: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            control-ui/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: npm ci
+      - run: npm test
+      - run: npm --prefix control-ui ci
+      - run: npm run build:voice
+      - name: Build complete offline package
+        run: python installer/build.py --work '${{ runner.temp }}\companion-build' --output '${{ runner.temp }}\companion-release'
+      - name: Verify native runtime and offline speech
+        run: '& "${{ runner.temp }}\companion-build\payload\Runtime\node.exe" installer/verify-bundle.mjs "${{ runner.temp }}\companion-build\payload" "${{ runner.temp }}\companion-verify"'
+      - name: Verify complete application with a new profile
+        run: python installer/verify-startup.py '${{ runner.temp }}\companion-build\payload' '${{ runner.temp }}\companion-startup\profile'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installer-verification
+          path: |
+            ${{ runner.temp }}/companion-verify/bundle-verification.json
+            ${{ runner.temp }}/companion-startup/startup-verification.json
+      - name: Publish verified installer and corresponding source
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_DIR: ${{ runner.temp }}\companion-release
+          PAYLOAD_DIR: ${{ runner.temp }}\companion-build\payload
+        run: python installer/publish.py

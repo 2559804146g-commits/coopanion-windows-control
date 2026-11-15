@@ -53,7 +53,7 @@ class DesktopWorld {
     if(!allowed[method])throw Error('设置操作不存在');return call({...args?.[0],action:allowed[method]});
   }};}
   async request(route, data) {
-    const token = fs.readFileSync(path.join(root, 'data', 'bridge-token'), 'utf8').trim();
+    const token = fs.readFileSync(path.join((await import('../runtime-paths.cjs')).default.dataDir, 'bridge-token'), 'utf8').trim();
     const r = await fetch(endpoint + route, { method: data ? 'POST' : 'GET', headers: { 'x-desktop-token': token, ...(data ? { 'Content-Type': 'application/json' } : {}) }, ...(data ? { body: JSON.stringify(data) } : {}), signal: AbortSignal.timeout(data?.action?.startsWith('music-') || ['execute-capability','app-inspect','song-search','song-request','song-play','song-hot'].includes(data?.action) ? 90000 : 5000) });
     const value = await r.json(); if (!r.ok) throw new Error(value.error || '桌面操作失败'); return value;
   }
@@ -85,8 +85,8 @@ class DesktopWorld {
   async start(host) {
     this.host=host;this.stopped=false;
     try{await this.request('/api/state');}catch{
-      const runtime=(await import('../runtime-paths.cjs')).default.electron,env={...process.env};delete env.ELECTRON_RUN_AS_NODE;
-      if(fs.existsSync(runtime)){const child=spawn(runtime,['.','--background'],{cwd:root,env,windowsHide:true,detached:true,stdio:'ignore'});child.on('error',()=>{});child.unref();}
+      const paths=(await import('../runtime-paths.cjs')).default,runtime=paths.electron,env={...process.env};delete env.ELECTRON_RUN_AS_NODE;
+      if(fs.existsSync(runtime)){const child=spawn(runtime,[...paths.hostArgs,'--background'],{cwd:root,env,windowsHide:true,detached:true,stdio:'ignore'});child.on('error',()=>{});child.unref();}
     }
     this.timer=setInterval(()=>void this.poll(),2000);void this.poll();
   }

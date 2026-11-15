@@ -1,7 +1,7 @@
 // The original Coopanion settings window is the only management surface.
 const {app,globalShortcut}=require('electron');
 const path=require('node:path');const {spawn}=require('node:child_process');
-app.setName('她的桌面');app.setPath('userData',path.join(__dirname,'data/electron'));
+app.setName('她的桌面');app.setPath('userData',path.join(require('./runtime-paths.cjs').dataDir,'electron'));
 const single=app.requestSingleInstanceLock();if(!single)app.quit();
 let service,quitting=false;
 const show=()=>service?.action({action:'original-settings'},'user').catch(e=>console.error(e.message));

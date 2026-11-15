@@ -33,10 +33,10 @@ export function installIntegration(){
   s=replace(s,'scheme: m.scheme, kit, loadImage','scheme: m.scheme, kit: ecologyKit, loadImage');
   return replace(s,'      body.set?.(m.state);','      if(m.state?.ecologyTarget)ecologyTarget=m.state.ecologyTarget;\n      body.set?.(m.state);');
  });
- patch('whale/figure.js',s=>replace(s,'  return opts.kit.createBody(opts.host, { figure: await createWhaleFigure(base, opts) });',"  const {createIntegratedWhaleBody}=await import('../desktop-ecology-figure.js');\n  return createIntegratedWhaleBody(createWhaleFigure,base,opts);"));
+ if(fs.existsSync(path.join(web,'whale/figure.js')))patch('whale/figure.js',s=>replace(s,'  return opts.kit.createBody(opts.host, { figure: await createWhaleFigure(base, opts) });',"  const {createIntegratedWhaleBody}=await import('../desktop-ecology-figure.js');\n  return createIntegratedWhaleBody(createWhaleFigure,base,opts);"));
  patch('../src/world.ts',s=>{
   s=replace(s,'  openWindow(): void {\n    if (!this.windowHost',"  openWindow(): void {\n    if(this.server.petInWindow){this.server.sendPet({t:'show'});return;}\n    if (!this.windowHost");
-  return replace(s,"        case 'state': return this.petState();","        case 'state': return this.petState();\n        case 'openSettings': this.opts.controls?.openSettings?.(); return {ok:true};");
+  return replace(s,"        case 'state': return this.petState();","        case 'state': return this.petState();\n        case 'openSettings': this.opts.controls?.openSettings?.(); return {ok:true};\n        case 'quitApplication': this.opts.controls?.quit?.(); return {ok:true};");
  });
  patch('../host/preload.cjs',s=>replace(s,"  hide: () => ipcRenderer.send('pet:hide'),","  hide: () => ipcRenderer.send('pet:hide'),\n  show: () => ipcRenderer.send('pet:show'),"));
  patch('../host/electron-main.cjs',s=>replace(s,"  onPet('pet:hide', () => { releaseAutoHidden(); if (win) win.hide(); });","  onPet('pet:hide', () => { releaseAutoHidden(); if (win) win.hide(); });\n  onPet('pet:show', () => { releaseAutoHidden(); if(win)win.showInactive(); });"));

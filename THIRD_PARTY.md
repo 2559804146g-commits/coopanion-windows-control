@@ -33,3 +33,7 @@
 ## 仓库初始化模板
 
 仓库初始化时选择的 MPL-2.0 许可模板归档于 `LICENSES/initial-repository-MPL-2.0.txt`。本次发布的桌面扩展源码使用与上游集成相适应的 AGPL-3.0-or-later；各单独标明的 MIT / CC0 部分保留原许可。
+
+## 0.14 整合安装包
+
+安装包从固定哈希的官方 Coopanion 0.2.19 便携发行包构建并保留其组件许可；不含 `web/whale` 的受限贴图，默认提供 Coo。Windows/Electron/MinGit/原生语音库等沿用各自许可证，具体来源在 `installer/inputs.lock.json` 和发布组件清单中。MeloTTS 模型为 MIT，Kokoro int8 模型为 Apache-2.0，Whisper small int8 模型按 Whisper 的 MIT 许可，模型目录内许可证随包保存。模型来自 sherpa-onnx 官方模型发行或其固定校验的模型来源。原应用修改点及全部构建源码公开；发布资产另附对应原应用源码目录。不把代码许可扩展为人物美术、商标或声音人格的许可。

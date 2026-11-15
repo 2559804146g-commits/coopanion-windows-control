@@ -1,3 +1,4 @@
+import runtimePaths from './runtime-paths.cjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import {spawn} from 'node:child_process';
@@ -69,7 +70,7 @@ export class VoiceOutput {
   }
   worker(){
     if(this.child)return this.child;
-    const child=this.child=spawn('node',[path.join(root,'tts-worker.cjs')],{windowsHide:true,stdio:['pipe','pipe','pipe']});
+    const child=this.child=spawn(fs.existsSync(runtimePaths.node)?runtimePaths.node:'node',[path.join(root,'tts-worker.cjs')],{windowsHide:true,stdio:['pipe','pipe','pipe']});
     child.stdin.on('error',()=>{});child.stderr.on('data',()=>{});
     readline.createInterface({input:child.stdout}).on('line',line=>{
       let value;try{value=JSON.parse(line);}catch{return;}

@@ -1,12 +1,13 @@
 const fs=require('node:fs'),path=require('node:path'),readline=require('node:readline'),{createRequire}=require('node:module');
 const requireApp=createRequire(require('./runtime-paths.cjs').appPackage),sherpa=requireApp('sherpa-onnx-node');
-const quantized=process.env.PET_TTS_MODEL==='int8'&&fs.existsSync(path.join(__dirname,'data/voices/kokoro-int8-multi-lang-v1_1/model.int8.onnx'));
+const voicesDir=require('./runtime-paths.cjs').voicesDir;
+const quantized=process.env.PET_TTS_MODEL==='int8'&&fs.existsSync(path.join(voicesDir,'kokoro-int8-multi-lang-v1_1/model.int8.onnx'));
 const engines=new Map();
 const cancelled=new Set(),send=value=>process.stdout.write(JSON.stringify(value)+'\n');
 const numThreads=[1,2,4].includes(Number(process.env.PET_TTS_THREADS))?Number(process.env.PET_TTS_THREADS):4;
 function load(voiceId){
  const fast=voiceId===1000||process.env.PET_TTS_MODEL==='melo',variant=fast?'vits-melo-tts-zh_en':quantized?'kokoro-int8-multi-lang-v1_1':'kokoro-multi-lang-v1_1';
- process.chdir(path.join(__dirname,'data/voices',variant));
+ process.chdir(path.join(voicesDir,variant));
  if(!engines.has(variant)){
   const model=fast?{vits:{model:'model.onnx',tokens:'tokens.txt',lexicon:'lexicon.txt',dictDir:'dict'}}:{kokoro:{model:quantized?'model.int8.onnx':'model.onnx',voices:'voices.bin',tokens:'tokens.txt',dataDir:'espeak-ng-data',dictDir:'dict',lexicon:'lexicon-us-en.txt,lexicon-zh.txt'}};
   engines.set(variant,sherpa.OfflineTts.createAsync({model:{...model,numThreads,provider:'cpu',debug:0},ruleFsts:fast?'date.fst,number.fst,phone.fst':'date-zh.fst,number-zh.fst,phone-zh.fst',maxNumSentences:1}).catch(e=>{engines.delete(variant);throw e;}));

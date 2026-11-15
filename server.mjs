@@ -26,7 +26,7 @@ const VERSION = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf
 const mime = { '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 'text/javascript', '.svg': 'image/svg+xml', '.png': 'image/png' };
 import runtimePaths from './runtime-paths.cjs';
 const FIGURES = runtimePaths.petWeb;
-export async function startDesktop({ port = 17830, dataDir = path.join(ROOT, 'data'), adapter = new WindowsAdapter(), hooks = {}, core = true } = {}) {
+export async function startDesktop({ port = 17830, dataDir = runtimePaths.dataDir, adapter = new WindowsAdapter(), hooks = {}, core = true } = {}) {
   const store = new DesktopStore(dataDir), tokenFile = path.join(dataDir, 'bridge-token');
   const replies=new ReplyPolicy(store),artifacts=new ArtifactLibrary(store),replyAudio=new Map();
   const covers=new CoverStudio(store,artifacts);
