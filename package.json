@@ -1,0 +1,29 @@
+{
+  "name": "windows-companion-desktop",
+  "private": true,
+  "version": "0.13.0",
+  "type": "module",
+  "main": "main.cjs",
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "probe": "node probe.mjs",
+    "start": "electron .",
+    "setup": "node scripts/setup.mjs",
+    "build:voice": "npm --prefix control-ui run build"
+  },
+  "license": "AGPL-3.0-or-later",
+  "description": "在同一个 Coopanion 桌宠与管理窗口中使用真实 Windows 应用",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/2559804146g-commits/coopanion-windows-control.git"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "electron": "45.3.1"
+  },
+  "dependencies": {
+    "ws": "8.18.0"
+  }
+}

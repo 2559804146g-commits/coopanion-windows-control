@@ -1,0 +1,26 @@
+name: Check source and voice settings
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: windows-latest
+    env:
+      ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            control-ui/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm --prefix control-ui ci
+      - run: npm run build:voice
+      - uses: actions/upload-artifact@v4
+        with:
+          name: voice-settings-static
+          path: bridge/control-ui

@@ -1,0 +1,7 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {OriginalInteraction} from '../original-interaction.mjs';
+
+test('settings opens through the original host API instead of the observer socket that ignores controls',async()=>{const i=new OriginalInteraction();let called;i.pet=async method=>(called=method,{ok:true});i.send=()=>{throw Error('observer controls are ignored');};assert.deepEqual(await i.settings(),{ok:true});assert.equal(called,'openSettings');i.close();});
+test('original voice exposes only status and distinguishes installed model from a running recognizer',()=>{const i=new OriginalInteraction();let s=i.readState({enabled:false,server:{phase:'stopped'},model:{phase:'ready'},api:{key:'never-show'},input:{hint:'原版按键'}});assert.equal(s.ready,false);assert.equal(s.enabled,false);assert.equal(JSON.stringify(s).includes('never-show'),false);s=i.readState({enabled:true,server:{phase:'running'},model:{phase:'ready'},mic:{state:'on'}});assert.equal(s.ready,true);assert.equal(s.mic,'on');i.close();});
+test('original text uses the original bounded text protocol and rejects empty or oversized input',async()=>{const i=new OriginalInteraction();let sent;i.send=async m=>(sent=m,{ok:true,accepted:true});assert.throws(()=>i.text(' '));assert.throws(()=>i.text('文'.repeat(501)));await i.text('  和她说话  ');assert.deepEqual(sent,{t:'text',text:'和她说话'});i.close();});

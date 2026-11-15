@@ -1,0 +1,17 @@
+data/
+config/runtime.json
+node_modules/
+control-ui/node_modules/
+bridge/control-ui/
+integration-backups/
+integration-backups-*
+验收/
+*.log
+.env
+.env.*
+*.zip
+*.wav
+*.mp3
+*.pth
+*.onnx
+*.index

@@ -1,0 +1,4 @@
+.app-scope { width: 112px; min-height: 36px; flex-shrink: 0; padding: 6px 10px; border: 1px solid #526a71; border-radius: 5px; background: #1b2a30; color: #d3e1dc; font: inherit; font-size: 12px; cursor: pointer; }
+.app-scope:hover { border-color: #a5cdbb; }
+.app-scope:focus-visible { outline: 2px solid #a5cdbb; outline-offset: 3px; }
+.app-scope:disabled { opacity: .5; cursor: wait; }

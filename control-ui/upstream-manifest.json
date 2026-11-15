@@ -1,0 +1,52 @@
+[
+  {
+    "source": "xiaozhi-esp32-server-0.9.6\\main\\manager-web\\src\\views\\ModelConfig.vue",
+    "copy": "views/ModelConfig.vue",
+    "sha256": "fcd779450478ce14bf418c9345a822f0d1f8970b0d456a8903ff6f929c802d3e"
+  },
+  {
+    "source": "xiaozhi-esp32-server-0.9.6\\main\\manager-web\\src\\components\\AddModelDialog.vue",
+    "copy": "components/AddModelDialog.vue",
+    "sha256": "6a7ddece77dc31a5a85b700e19441b15255f4c7a4837dec57db5ac139fb55435"
+  },
+  {
+    "source": "xiaozhi-esp32-server-0.9.6\\main\\manager-web\\src\\components\\ModelEditDialog.vue",
+    "copy": "components/ModelEditDialog.vue",
+    "sha256": "4a234c156ba137ce5dedcb767f85b019c36e52204e0f78681be9a72c3b1373af"
+  },
+  {
+    "source": "xiaozhi-esp32-server-0.9.6\\main\\manager-web\\src\\components\\TtsModel.vue",
+    "copy": "components/TtsModel.vue",
+    "sha256": "b52f0f2d7604a54d8d430038e58cbb1a566a274f98b16f3f4502776cd3350815"
+  },
+  {
+    "source": "xiaozhi-esp32-server-0.9.6\\main\\manager-web\\src\\components\\AudioPlayer.vue",
+    "copy": "components/AudioPlayer.vue",
+    "sha256": "10e1fd66b996ecbcc40043e1e13686a7c7fda9ca1925573c32fb853fa19d2ac5"
+  },
+  {
+    "source": "xiaozhi-esp32-server-0.9.6\\main\\manager-web\\src\\components\\CustomDialog.vue",
+    "copy": "components/CustomDialog.vue",
+    "sha256": "a0201d8983725d5a50c8891e57d74f398c31b9764e393304e54a6930130c9607"
+  },
+  {
+    "source": "xiaozhi-esp32-server-0.9.6\\main\\manager-web\\src\\components\\CustomButton.vue",
+    "copy": "components/CustomButton.vue",
+    "sha256": "ce60e0160bc00861d124acfd7910f129c01a0e37a7f6c5925410cce3ffee7f18"
+  },
+  {
+    "source": "xiaozhi-esp32-server-0.9.6\\main\\manager-web\\src\\components\\CustomPagination.vue",
+    "copy": "components/CustomPagination.vue",
+    "sha256": "3b184731bd8807b3066cbd6c730825a5bbf611cb148c7f7b90fe3b3fb4b4a611"
+  },
+  {
+    "source": "xiaozhi-esp32-server-0.9.6\\main\\manager-web\\src\\styles\\global.scss",
+    "copy": "styles/global.scss",
+    "sha256": "7d3a50bbef290b56b5e9a40626b5e24bd7b73ed26f092b89a78d2be795dcc1ed"
+  },
+  {
+    "source": "xiaozhi-esp32-server-0.9.6\\main\\manager-web\\src\\i18n\\zh_CN.js",
+    "copy": "i18n/zh_CN.js",
+    "sha256": "a2ad169eb3f9ccd4e2fa0391afa70000f5d2bc327b9f6cf59981a127079d0b64"
+  }
+]
